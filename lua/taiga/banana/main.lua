@@ -1,0 +1,24 @@
+---@module "banana.instance"
+
+---@param document Banana.Instance
+return function(document)
+    local container = document:getElementById("container")
+    local projectsContainer = document:getElementById("projectscontainer")
+    require("taiga.api.auth").getCredentials(function(v)
+        container:setAttribute("username", v.full_name)
+        require("taiga.api.projects").list(vim.schedule_wrap(function(projects)
+            for i, proj in ipairs(projects) do
+                local el = document:createElement("ProjectName")
+                el:setAttribute("projectName", proj.name)
+                el:setAttribute("index", i .. "")
+                el:attachRemap("n", "<CR>", { "line-hover" }, function()
+                    print('urmom')
+                    document:loadNmlTo(
+                        "taiga/project?id=" .. proj.id, document:body(), true, false
+                    )
+                end, {})
+                projectsContainer:appendChild(el)
+            end
+        end), {}, {})
+    end, {}, nil)
+end

@@ -1,0 +1,24 @@
+<div id="container" projectName="project" projectDescription="description" epicDescription="desc" epicName="epic">
+    <template name="StoryName">
+        <div>(#%ref) &sp; %storyName</div>
+        <script when="prerender">
+        </script>
+    </template>
+
+    <h1 id="project"> %projectName </h1>
+    <div style="hl-fg: hl-extract(fg, Comment);"> %projectDescription </div>
+    <br>
+
+    <h1><span id="color">■</span> &sp; <span id="epicName"></span></h1>
+    <br>
+    <div id="status"> </div>
+    <br>
+    <div id="epicDesc"> desc </div>
+    <br>
+
+    <h1> Stories </h1>
+    <div id="stories" style="padding-left: 2ch;">
+    </div>
+
+    <script src="taiga.banana.epic" when="prerender"></script>
+</div>

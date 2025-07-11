@@ -1,0 +1,42 @@
+<nml>
+<head>
+    <meta name="buf-filetype" value="yuhh">
+    <!-- <meta name="win-winborder" value="rounded"> -->
+    <template import="taiga/block"></template>
+    <script src="taiga.banana.index" when="prerender">
+    </script>
+    <script src="banana.helpers.qtoclose" when="prerender">
+    </script>
+    <style>
+
+        body {
+            padding-top: 1ch;
+            padding-bottom: 1ch;
+            padding-left: 2ch;
+        }
+
+        code {
+            hl-bg: hl-extract(bg, Normal);
+        }
+
+        .k {
+            hl-fg: hl-extract(fg, "@keyword");
+        }
+        .nc {
+            hl-fg: hl-extract(fg, "Type");
+        }
+        .p {
+            hl-fg: hl-extract(fg, "@punctuation.bracket");
+        }
+        .n {
+            hl-fg: hl-extract(fg, "@variable");
+        }
+        .c1 {
+            hl-fg: hl-extract(fg, "Comment");
+        }
+    </style>
+</head>
+<body>
+</body>
+
+</nml>

@@ -1,0 +1,37 @@
+<div id="container">
+    <style>
+        #epics {
+            display: grid;
+            grid-template-columns: 35% 15%;
+        }
+        progress {
+            width: calc(100% - 2ch);
+        }
+        progress > .progress-filled {
+          hl-fg: linear-gradient(to left, #9ece6a, #e0af68, #f7768e);
+        }
+        progress > .progress-empty {
+          hl-fg: #565f89;
+        }
+
+    </style>
+    <template name="EpicName">
+        <div><span id="color">■</span> &sp; %epicName</div>
+        <script when="prerender">
+        local self = document:getScriptParams().selfNode
+        local color = self:getAttributeSubstitution("color")
+        local colNode = document:getElementById("color")
+        colNode:setStyleValue("hl-fg", color)
+        </script>
+    </template>
+
+    <h1 id="projectName">  %projectName </h1>
+    <div id="projectDesc"> %description </div>
+    <br>
+
+    <h1>Epics</h1>
+    <div id="epics" style="padding-left: 2ch;">
+    </div>
+
+    <script src="taiga.banana.project" when="prerender"></script>
+</div>

@@ -1,0 +1,35 @@
+<div id="container" projectName="project" projectDescription="description" epicName="epic">
+    <template name="TaskName">
+        <div>(#%ref) <span id="blocker" style="hl-fg: #f7768e"></span> &sp; %taskName</div>
+        <script when="prerender">
+            local block = document:getPrimaryNode():getAttributeSubstitution("blockReason")
+            if block ~= "" then
+                document:getElementById("blocker"):setTextContent(" (blocked)")
+            end
+            
+        </script>
+    </template>
+
+    <h1 id="project"> %projectName </h1>
+    <div style="hl-fg: hl-extract(fg, Comment);"> %projectDescription </div>
+    <br>
+
+    <h1 id="epic"><span id="color">■</span> &sp; <span id="epicName"></span> </h1>
+    <br>
+
+    <h1 id="storyName"></h1>
+    <br>
+    <div id="status"> </div>
+    <br>
+    <div> Assigned to: <span id="assignee">no one</span> </div>
+    <div id="userSelector"></div>
+    <br>
+    <div id="storyDesc"> desc </div>
+    <br>
+
+    <h1> Tasks </h1>
+    <div id="tasks" style="padding-left: 2ch;">
+    </div>
+
+    <script src="taiga.banana.story" when="prerender"></script>
+</div>
