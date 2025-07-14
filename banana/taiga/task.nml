@@ -1,6 +1,6 @@
 <div id="container" projectName="project" projectDescription="description" epicName="epic">
     <template name="TaskName">
-        <div>(#%ref) &sp; %taskName</div>
+        <div>Task: (#%ref) &sp; %taskName</div>
         <script when="prerender">
         </script>
     </template>
@@ -19,6 +19,7 @@
     <br>
     <div id="status"> </div>
     <br>
+    <div id="blockedCont" style="hl-fg: #f7768e"></div>
     <div> Assigned to: <span id="assignee">no one</span> </div>
     <div id="userSelector"></div>
     <br>

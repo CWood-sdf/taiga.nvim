@@ -1,19 +1,19 @@
 local cache = require "taiga.utils.cache"
 local M = {}
 
----@class Taiga.Epics.List.Query
----@field project number|string?
+---@class (exact) Taiga.Epics.List.Query
+---@field project number
 ---@field assigned_to number?
 
----@class Taiga.Epics.Get.Query
----@field id number|string
+---@class (exact) Taiga.Epics.Get.Query
+---@field id number
 
----@class Taiga.Epics.Edit.Query.Data
+---@class (exact) Taiga.Epics.Edit.Query.Data
 ---@field subject string?
 ---@field description string?
 
----@class Taiga.Epics.Edit.Query
----@field id string
+---@class (exact) Taiga.Epics.Edit.Query
+---@field id number
 ---@field data Taiga.Epics.Edit.Query.Data
 
 ---@param onDone fun(projects)
@@ -46,7 +46,13 @@ M.list = cache.wrap(function(onDone, opts, query)
         vim.system(cmd, {
             text = true,
         }, function(v)
-            onDone(vim.json.decode(v.stdout, { luanil = { object = true, array = true } }))
+            local arr = vim.json.decode(v.stdout, { luanil = { object = true, array = true } })
+            for _, epic in ipairs(arr) do
+                M.get(function() end, { cache = false }, {
+                    id = epic.id
+                })
+            end
+            vim.schedule_wrap(onDone)(arr)
         end)
     end, opts, nil)
 end)
@@ -54,7 +60,7 @@ end)
 ---@param onDone fun(projects)
 ---@param opts Taiga.Api.BaseOpts
 ---@param query Taiga.Epics.Edit.Query
-M.edit = cache.wrap(function(onDone, opts, query)
+M.edit = function(onDone, opts, query)
     require("taiga.api.auth").getCredentials(function(login)
         local cmd = {
             "curl",
@@ -73,10 +79,10 @@ M.edit = cache.wrap(function(onDone, opts, query)
             text = true,
         }, function(v)
             M.get(function() end, { cache = false }, { id = query.id })
-            onDone(vim.json.decode(v.stdout, { luanil = { object = true, array = true } }))
+            vim.schedule_wrap(onDone)(vim.json.decode(v.stdout, { luanil = { object = true, array = true } }))
         end)
     end, opts, nil)
-end)
+end
 
 ---@param onDone fun(projects)
 ---@param opts Taiga.Api.BaseOpts
@@ -98,7 +104,7 @@ M.get = cache.wrap(function(onDone, opts, query)
         vim.system(cmd, {
             text = true,
         }, function(v)
-            onDone(vim.json.decode(v.stdout, { luanil = { object = true, array = true } }))
+            vim.schedule_wrap(onDone)(vim.json.decode(v.stdout, { luanil = { object = true, array = true } }))
         end)
     end, opts, nil)
 end)

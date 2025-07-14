@@ -21,12 +21,12 @@
         local self = document:getScriptParams().selfNode
         local color = self:getAttributeSubstitution("color")
         local colNode = document:getElementById("color")
-        colNode:setStyleValue("hl-fg", color)
+        colNode:setStyleValue("hl-fg", color or "#0000ff")
         </script>
     </template>
 
     <h1 id="projectName">  %projectName </h1>
-    <div id="projectDesc"> %description </div>
+    <div id="projectDesc" style="hl-link: Comment"> %description </div>
     <br>
 
     <h1>Epics</h1>

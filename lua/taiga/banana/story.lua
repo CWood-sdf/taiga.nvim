@@ -18,13 +18,13 @@ local function drawTasks(document, tasks, taskCont, projectId, epicId, storyId, 
         el:attachRemap("n", "dd", { "line-hover" }, function()
             print("Deleting " .. task.ref)
             require("taiga.api.tasks").delete(function()
-                require("taiga.api.tasks").list(vim.schedule_wrap(function(s)
+                require("taiga.api.tasks").list(function(s)
                     drawTasks(document, s, taskCont, projectId, epicId, storyId, body)
-                end), { cache = false }, { epic = epicId, project = projectId, user_story = storyId })
+                end, { cache = false }, { epic = epicId, project = projectId, user_story = storyId })
             end, {}, {
                 epicId = epicId,
                 id = task.id,
-                projectId = projectId,
+                project = projectId,
                 storyId = storyId,
             })
         end, {})
@@ -57,11 +57,12 @@ end
 
 ---@param document Banana.Instance
 return function(document)
+    document:setTitle("story")
     local body = document:getScriptParams().selfNode:parent()
     local params = document:getScriptParams().params
-    local storyId = params.id or error("storyId not passed")
-    local epicId = params.epicId or error("epicId not passed")
-    local projectId = params.projectId or error("projectId not passed")
+    local storyId = tonumber(params.id) or error("storyId not passed")
+    local epicId = tonumber(params.epicId) or error("epicId not passed")
+    local projectId = tonumber(params.projectId) or error("projectId not passed")
     local container = document:getElementById("container")
     local taskCont = document:getElementById("tasks")
     local colorBlock = document:getElementById("color")
@@ -78,6 +79,7 @@ return function(document)
         require("taiga.api.stories").edit(function(e)
             versionTable.version = e.version
         end, {}, {
+            project = projectId,
             id = storyId,
             data = {
                 version = versionTable.version,
@@ -94,13 +96,13 @@ return function(document)
                 "taiga/epic?id=" .. epicId .. "&projectId=" .. projectId, body, true, false)
         end, {})
 
-    require("taiga.api.epics").get(vim.schedule_wrap(function(epic)
+    require("taiga.api.epics").get(function(epic)
         utils.epicTitle(document, document:getElementById("epicName"), colorBlock, body,
             epic, epicId, projectId, versionTable)
-    end), {}, { id = epicId })
+    end, {}, { id = epicId })
 
 
-    require("taiga.api.projects").get(vim.schedule_wrap(function(proj)
+    require("taiga.api.projects").get(function(proj)
         container:setAttribute("projectName", proj.name)
         container:setAttribute("projectDescription", proj.description)
         document
@@ -109,18 +111,25 @@ return function(document)
                 document:loadNmlTo(
                     "taiga/project?id=" .. projectId, body, true, false)
             end, {})
-    end), {}, { id = projectId })
+    end, {}, { id = projectId })
 
-    require("taiga.api.stories").get(vim.schedule_wrap(function(story)
+    require("taiga.api.stories").get(function(story)
         versionTable.version = story.version
         local storyNameCont = document:getElementById("storyName")
         utils.storyTitle(document, body, storyNameCont, story, versionTable, storyId, epicId, projectId)
+
         -- assigned {
         local assignee = document:getElementById("assignee")
         local assignedUsers = story.assigned_users
         setAssignedUsers(assignee, assignedUsers)
+        local el = nil
         assignee:attachRemap("n", "<CR>", { "line-hover" }, function()
-            local el = document:createElement("SelectPerson")
+            if el ~= nil then
+                el:remove()
+                el = nil
+                return
+            end
+            el = document:createElement("SelectPerson")
             el:setData("callback", function(person)
                 if person ~= nil then
                     local found = false
@@ -160,6 +169,7 @@ return function(document)
                         versionTable.version = v.version
                         story = v
                     end, {}, {
+                        project = projectId,
                         id = storyId,
                         data = obj,
                     })
@@ -173,9 +183,9 @@ return function(document)
         -- }
 
         -- storyNameCont:appendChild(title)
-        local el = document:createElement("TextBlock")
-        el:setAttribute("content", story.description)
-        el:setData("callback", function(str)
+        local textblock = document:createElement("TextBlock")
+        textblock:setAttribute("content", story.description)
+        textblock:setData("callback", function(str)
             require("taiga.api.stories").edit(function(v)
                 if v.version == nil then
                     vim.print("Action Failed!")
@@ -184,6 +194,7 @@ return function(document)
                 end
                 versionTable.version = v.version
             end, {}, {
+                project = projectId,
                 id = storyId,
                 data = {
                     description = str,
@@ -193,19 +204,19 @@ return function(document)
         end)
         local storyDesc = document:getElementById('storyDesc')
         storyDesc:removeChildren()
-        storyDesc:appendChild(el)
+        storyDesc:appendChild(textblock)
         -- container:setAttribute("storyName", story.subject)
-    end), {}, { id = storyId })
-    require("taiga.api.tasks").list(vim.schedule_wrap(function(tasks)
+    end, {}, { id = storyId })
+    require("taiga.api.tasks").list(function(tasks)
         drawTasks(document, tasks, taskCont, projectId, epicId, storyId, body)
-    end), {}, { project = projectId, user_story = storyId })
+    end, {}, { project = projectId, user_story = storyId })
     taskCont:attachRemap("n", "+", {}, function()
         local name = vim.fn.input("New name: ")
-        require("taiga.api.tasks").create(vim.schedule_wrap(function(story)
-        end), {}, {
-            refresh = vim.schedule_wrap(function(tasks)
+        require("taiga.api.tasks").create(function(story)
+        end, {}, {
+            refresh = function(tasks)
                 drawTasks(document, tasks, taskCont, projectId, epicId, storyId, body)
-            end),
+            end,
             storyId = storyId,
             data = {
                 project = projectId,

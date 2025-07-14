@@ -1,26 +1,26 @@
 local cache = require "taiga.utils.cache"
 local M = {}
 
----@class Taiga.Epics.RelUs.Create.Query.Data
+---@class (exact) Taiga.Epics.RelUs.Create.Query.Data
 ---@field epic number
 ---@field user_story number
 
----@class Taiga.Epics.RelUs.Create.Query
+---@class (exact) Taiga.Epics.RelUs.Create.Query
 ---@field epic number
 ---@field data Taiga.Epics.RelUs.Create.Query.Data
 
----@class Taiga.Epics.RelUs.List.Query
+---@class (exact) Taiga.Epics.RelUs.List.Query
 ---@field project string?
 ---@field epic string?
 
----@class Taiga.Epics.RelUs.Get.Query
+---@class (exact) Taiga.Epics.RelUs.Get.Query
 ---@field id string
 
----@class Taiga.Epics.RelUs.Edit.Query.Data
+---@class (exact) Taiga.Epics.RelUs.Edit.Query.Data
 ---@field subject string?
 ---@field description string?
 
----@class Taiga.Epics.RelUs.Edit.Query
+---@class (exact) Taiga.Epics.RelUs.Edit.Query
 ---@field id string
 ---@field data Taiga.Epics.RelUs.Edit.Query.Data
 

@@ -5,11 +5,13 @@ local M = {}
 ---@param colorBlock Banana.Ast
 ---@param body Banana.Ast
 ---@param versionTable { version: number }
+---@param epicId number
+---@param projectId number
 function M.epicTitle(document, container, colorBlock, body, epic, epicId, projectId, versionTable)
     local title = document:createElement("EditTitle")
     title:setAttribute("content", epic.subject)
     title:setData("displayTitle", function(str)
-        return "(#" .. epic.ref .. ") " .. str
+        return "Epic: (#" .. epic.ref .. ") " .. str
     end)
     title:setData("filetype", "text")
     title:setData("callback", function(str)
@@ -21,6 +23,7 @@ function M.epicTitle(document, container, colorBlock, body, epic, epicId, projec
             end
             versionTable.version = v.version
         end, {}, {
+            project = projectId,
             id = epicId,
             data = {
                 subject = str,
@@ -40,7 +43,7 @@ function M.storyTitle(document, body, container, story, versionTable, storyId, e
     local title = document:createElement("EditTitle")
     title:setAttribute("content", story.subject)
     title:setData("displayTitle", function(str)
-        return "(#" .. story.ref .. ") " .. str
+        return "Story: (#" .. story.ref .. ") " .. str
     end)
     title:setData("callback", function(str)
         require("taiga.api.stories").edit(function(v)
@@ -51,6 +54,7 @@ function M.storyTitle(document, body, container, story, versionTable, storyId, e
             end
             versionTable.version = v.version
         end, {}, {
+            project = projectId,
             id = storyId,
             data = {
                 subject = str,

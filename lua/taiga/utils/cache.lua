@@ -18,11 +18,11 @@ function M.wrap(run, refreshTime)
         end
         if timer == nil and refreshTime ~= 0 then
             timer = vim.uv.new_timer()
-            timer:start(refreshTime, 10000, function()
-                run(function(v)
-                    cache[q] = v
-                end, opts, query)
-            end)
+            -- timer:start(refreshTime, 10000, function()
+            --     run(function(v)
+            --         cache[q] = v
+            --     end, opts, query)
+            -- end)
         end
         run(function(v)
             cache[q] = v

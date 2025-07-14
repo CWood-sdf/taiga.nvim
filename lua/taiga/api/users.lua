@@ -1,7 +1,7 @@
 local cache = require "taiga.utils.cache"
 local M = {}
 
----@class Taiga.Users.Get.Query
+---@class (exact) Taiga.Users.Get.Query
 ---@field id number
 
 ---@param onDone fun(projects)

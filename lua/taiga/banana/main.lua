@@ -6,7 +6,7 @@ return function(document)
     local projectsContainer = document:getElementById("projectscontainer")
     require("taiga.api.auth").getCredentials(function(v)
         container:setAttribute("username", v.full_name)
-        require("taiga.api.projects").list(vim.schedule_wrap(function(projects)
+        require("taiga.api.projects").list(function(projects)
             for i, proj in ipairs(projects) do
                 local el = document:createElement("ProjectName")
                 el:setAttribute("projectName", proj.name)
@@ -19,6 +19,6 @@ return function(document)
                 end, {})
                 projectsContainer:appendChild(el)
             end
-        end), {}, {})
+        end, {}, {})
     end, {}, nil)
 end

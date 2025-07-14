@@ -1,10 +1,10 @@
 local cache = require "taiga.utils.cache"
 local M = {}
----@class Taiga.Projects.List.Query
+---@class (exact) Taiga.Projects.List.Query
 ---@field member string?
 
----@class Taiga.Projects.Get.Query
----@field id string
+---@class (exact) Taiga.Projects.Get.Query
+---@field id number
 
 ---@param onDone fun(projects)
 ---@param opts Taiga.Api.BaseOpts
@@ -26,7 +26,7 @@ M.list = cache.wrap(function(onDone, opts, query)
         vim.system(cmd, {
             text = true,
         }, function(v)
-            onDone(vim.json.decode(v.stdout, { luanil = { object = true, array = true } }))
+            vim.schedule_wrap(onDone)(vim.json.decode(v.stdout, { luanil = { object = true, array = true } }))
         end)
     end, opts, nil)
 end)
@@ -51,7 +51,7 @@ M.get = cache.wrap(function(onDone, opts, query)
         vim.system(cmd, {
             text = true,
         }, function(v)
-            onDone(vim.json.decode(v.stdout, { luanil = { object = true, array = true } }))
+            vim.schedule_wrap(onDone)(vim.json.decode(v.stdout, { luanil = { object = true, array = true } }))
         end)
     end, opts, nil)
 end)

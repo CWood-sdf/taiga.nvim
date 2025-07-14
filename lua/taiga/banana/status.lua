@@ -3,10 +3,10 @@
 ---@param document Banana.Instance
 return function(document)
     local root = document:getElementById("cont")
-    local projectId = root:getData("projectId") or
+    local projectId = tonumber(root:getData("projectId")) or
         error("'projectId' data must be provided to <Status>")
     local tp = root:getData("type") or error("'type' data must be provided to <Status>")
-    local id = root:getData("id") or error("'id' data must be provided to <Status>")
+    local id = tonumber(root:getData("id")) or error("'id' data must be provided to <Status>")
     local editCallback = root:getData("editCallback") or error("'editCallback' data must be provided to <Status>")
     local statusColor = document:getElementById("status-color")
     local statusName = document:getElementById("status-name")
@@ -30,7 +30,7 @@ return function(document)
     require("taiga.api.projects").get(function(proj)
         local statusTypes = proj[dataTp .. "_statuses"]
 
-        require("taiga.api." .. reqTp).get(vim.schedule_wrap(function(obj)
+        require("taiga.api." .. reqTp).get(function(obj)
             local status = vim.iter(statusTypes):filter(function(l)
                 return l.id == obj.status
             end):nth(1)
@@ -71,7 +71,7 @@ return function(document)
                     open = false
                 end
             end, {})
-        end), {}, { id = id })
+        end, {}, { id = id })
     end, {}, { id = projectId })
     -- local filetype = root:getData("filetype") or "markdown"
     -- local displayTitle = root:getData("displayTitle") or function(s) return s end

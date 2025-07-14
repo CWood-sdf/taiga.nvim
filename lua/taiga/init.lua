@@ -1,4 +1,4 @@
----@class Taiga.Api.BaseOpts
+---@class (exact) Taiga.Api.BaseOpts
 ---@field cache boolean?
 
 

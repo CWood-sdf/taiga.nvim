@@ -3,7 +3,7 @@
 ---@param document Banana.Instance
 return function(document)
     local root = document:getPrimaryNode()
-    local projectId = root:getData("projectId") or error("projectId not passed to <SelectPerson>")
+    local projectId = tonumber(root:getData("projectId")) or error("projectId not passed to <SelectPerson>")
     local callback = root:getData("callback") or error("callback not passed to <SelectPerson>")
     local cont = document:getElementById("cont")
 

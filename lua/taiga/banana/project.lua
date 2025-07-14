@@ -2,20 +2,21 @@
 
 ---@param document Banana.Instance
 return function(document)
+    document:setTitle("project")
     local body = document:getScriptParams().selfNode:parent()
     local params = document:getScriptParams().params
-    local projectId = params.id .. ""
+    local projectId = tonumber(params.id) or error("projectId not a valid number")
     local container = document:getElementById("container")
     local epicCont = document:getElementById("epics")
 
-    require("taiga.api.projects").get(vim.schedule_wrap(function(proj)
+    require("taiga.api.projects").get(function(proj)
         container:setAttribute("projectName", proj.name)
         if proj.description ~= '' then
             container:setAttribute("description", proj.description)
         end
-    end), {}, { id = projectId })
+    end, {}, { id = projectId })
 
-    require("taiga.api.epics").list(vim.schedule_wrap(function(epics)
+    require("taiga.api.epics").list(function(epics)
         for _, epic in ipairs(epics) do
             -- if epic.project ~= proj.id then
             --     goto continue
@@ -41,5 +42,5 @@ return function(document)
             epicCont:appendChild(div)
             -- ::continue::
         end
-    end), {}, { project = projectId })
+    end, {}, { project = projectId })
 end

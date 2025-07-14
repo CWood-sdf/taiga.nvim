@@ -2,11 +2,11 @@ local M       = {}
 
 local cache   = require("taiga.utils.cache")
 
----@class Taiga.Auth.UsernamePassword
+---@class (exact) Taiga.Auth.UsernamePassword
 ---@field username string
 ---@field password string
 
----@class Taiga.Auth.Credentials
+---@class (exact) Taiga.Auth.Credentials
 ---@field id number
 ---@field username string
 ---@field full_name string
