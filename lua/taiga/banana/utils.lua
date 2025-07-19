@@ -39,6 +39,12 @@ function M.epicTitle(document, container, colorBlock, body, epic, epicId, projec
     end, {})
 end
 
+---@param document Banana.Instance
+---@return Banana.Ast
+function M.getBody(document)
+    return document:getElementById("body")
+end
+
 function M.storyTitle(document, body, container, story, versionTable, storyId, epicId, projectId)
     local title = document:createElement("EditTitle")
     title:setAttribute("content", story.subject)

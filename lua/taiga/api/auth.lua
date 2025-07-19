@@ -22,7 +22,7 @@ M.getUsername = cache.wrap(function(onDone, opts, query)
     }, function(v)
         onDone(vim.json.decode(v.stdout, { luanil = { object = true, array = true } }))
     end)
-end, 0)
+end, "auth_username", 0)
 
 
 ---@type Taiga.Auth.Credentials?
@@ -76,7 +76,7 @@ M.getCredentials = cache.wrap(function(onDone, opts)
             -- M.refresh()
         end)
     end, opts, nil)
-end)
+end, "auth_credentials")
 
 function M.getAuthToken()
     if me == nil then return "" end

@@ -3,6 +3,7 @@
 ---@param document Banana.Instance
 return function(document)
     local container = document:getElementById("container")
+    local body = document:getScriptParams().selfNode:parent()
     local projectsContainer = document:getElementById("projectscontainer")
     require("taiga.api.auth").getCredentials(function(v)
         container:setAttribute("username", v.full_name)
@@ -14,7 +15,7 @@ return function(document)
                 el:attachRemap("n", "<CR>", { "line-hover" }, function()
                     print('urmom')
                     document:loadNmlTo(
-                        "taiga/project?id=" .. proj.id, document:body(), true, false
+                        "taiga/project?id=" .. proj.id, body, true, false
                     )
                 end, {})
                 projectsContainer:appendChild(el)

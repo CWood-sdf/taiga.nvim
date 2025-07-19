@@ -68,12 +68,18 @@ M.list = cache.wrap(function(onDone, opts, query)
         }, function(v)
             local arr = vim.json.decode(v.stdout, { luanil = { object = true, array = true } })
             for _, task in ipairs(arr) do
+                require("taiga.api.refdb").addRef({
+                    id = task.id,
+                    name = task.subject,
+                    ref = task.ref,
+                    tp = "epic",
+                })
                 M.get(function() end, { cache = false }, { id = task.id })
             end
             vim.schedule_wrap(onDone)(arr)
         end)
     end, opts, nil)
-end)
+end, "tasks_list")
 
 ---@param onDone fun(projects)
 ---@param opts Taiga.Api.BaseOpts
@@ -108,7 +114,7 @@ end
 ---@param onDone fun(projects)
 ---@param opts Taiga.Api.BaseOpts
 ---@param query Taiga.Tasks.Edit.Query
-M.edit = cache.wrap(function(onDone, opts, query)
+M.edit = function(onDone, opts, query)
     require("taiga.api.auth").getCredentials(function(login)
         local cmd = {
             "curl",
@@ -130,7 +136,7 @@ M.edit = cache.wrap(function(onDone, opts, query)
             vim.schedule_wrap(onDone)(vim.json.decode(v.stdout, { luanil = { object = true, array = true } }))
         end)
     end, opts, nil)
-end)
+end
 
 ---@param onDone fun(projects)
 ---@param opts Taiga.Api.BaseOpts
@@ -155,7 +161,7 @@ M.get = cache.wrap(function(onDone, opts, query)
             onDone(vim.json.decode(v.stdout, { luanil = { object = true, array = true } }))
         end)
     end, opts, nil)
-end)
+end, "tasks_get")
 
 ---@param onDone fun(projects)
 ---@param opts Taiga.Api.BaseOpts

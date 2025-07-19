@@ -27,6 +27,6 @@ M.get = cache.wrap(function(onDone, opts, query)
             onDone(vim.json.decode(v.stdout, { luanil = { object = true, array = true } }))
         end)
     end, opts, nil)
-end)
+end, "users_get")
 
 return M

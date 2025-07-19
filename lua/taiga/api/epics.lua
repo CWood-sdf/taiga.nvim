@@ -51,11 +51,17 @@ M.list = cache.wrap(function(onDone, opts, query)
                 M.get(function() end, { cache = false }, {
                     id = epic.id
                 })
+                require("taiga.api.refdb").addRef({
+                    id = epic.id,
+                    name = epic.subject,
+                    ref = epic.ref,
+                    tp = "epic",
+                })
             end
             vim.schedule_wrap(onDone)(arr)
         end)
     end, opts, nil)
-end)
+end, "epics_list")
 
 ---@param onDone fun(projects)
 ---@param opts Taiga.Api.BaseOpts
@@ -107,6 +113,6 @@ M.get = cache.wrap(function(onDone, opts, query)
             vim.schedule_wrap(onDone)(vim.json.decode(v.stdout, { luanil = { object = true, array = true } }))
         end)
     end, opts, nil)
-end)
+end, "epics_get")
 
 return M

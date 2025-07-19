@@ -39,6 +39,10 @@ local mainList = cache.wrap(function(onDone, opts, query)
     require("taiga.api.auth").getCredentials(function(login)
         local queryStr = "?project=" .. query.project
 
+        if query.epic ~= nil then
+            queryStr = queryStr .. "&epic=" .. query.epic
+        end
+
         local cmd = {
             "curl",
             "-X",
@@ -56,6 +60,12 @@ local mainList = cache.wrap(function(onDone, opts, query)
         }, function(v)
             local arr = vim.json.decode(v.stdout, { luanil = { object = true, array = true } })
             for _, story in ipairs(arr) do
+                require("taiga.api.refdb").addRef({
+                    id = story.id,
+                    name = story.subject,
+                    ref = story.ref,
+                    tp = "epic",
+                })
                 M.get(function() end, { cache = false }, {
                     id = story.id
                 })
@@ -63,7 +73,7 @@ local mainList = cache.wrap(function(onDone, opts, query)
             vim.schedule_wrap(onDone)(arr)
         end)
     end, opts, nil)
-end)
+end, "stories_mainList")
 
 ---@param onDone fun(projects)
 ---@param opts Taiga.Api.BaseOpts
@@ -84,9 +94,7 @@ M.list = function(onDone, opts, query)
         else
             onDone(arr)
         end
-    end, opts, {
-        project = query.project
-    })
+    end, opts, query)
 end
 
 ---@param onDone fun(projects)
@@ -135,7 +143,7 @@ M.delete = function(onDone, opts, query)
         vim.system(cmd, {
             text = true,
         }, function(v)
-            mainList(function() end, { cache = false }, { project = query.project })
+            mainList(function() end, { cache = false }, { project = query.project, epic = query.epicId })
             vim.schedule_wrap(onDone)(v.stdout)
             -- onDone(vim.json.decode(v.stdout, { luanil = { object = true, array = true } }))
         end)
@@ -163,7 +171,11 @@ M.edit = function(onDone, opts, query)
         vim.system(cmd, {
             text = true,
         }, function(v)
-            mainList(function() end, { cache = false }, { project = query.project })
+            M.get(function(e)
+                mainList(function() end, { cache = false }, { project = query.project, epic = e.epic })
+            end, {}, {
+                id = query.id
+            })
             vim.schedule_wrap(onDone)(vim.json.decode(v.stdout, { luanil = { object = true, array = true } }))
         end)
     end, opts, nil)
@@ -192,6 +204,6 @@ M.get = cache.wrap(function(onDone, opts, query)
             vim.schedule_wrap(onDone)(vim.json.decode(v.stdout, { luanil = { object = true, array = true } }))
         end)
     end, opts, nil)
-end)
+end, "stories_get")
 
 return M

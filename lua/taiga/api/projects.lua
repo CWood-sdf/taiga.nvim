@@ -26,10 +26,14 @@ M.list = cache.wrap(function(onDone, opts, query)
         vim.system(cmd, {
             text = true,
         }, function(v)
-            vim.schedule_wrap(onDone)(vim.json.decode(v.stdout, { luanil = { object = true, array = true } }))
+            local arr = vim.json.decode(v.stdout, { luanil = { object = true, array = true } })
+            for _, proj in ipairs(arr) do
+                M.get(function() end, { cache = false }, { id = proj.id })
+            end
+            vim.schedule_wrap(onDone)(arr)
         end)
     end, opts, nil)
-end)
+end, "projects_list")
 
 ---@param onDone fun(projects)
 ---@param opts Taiga.Api.BaseOpts
@@ -54,6 +58,6 @@ M.get = cache.wrap(function(onDone, opts, query)
             vim.schedule_wrap(onDone)(vim.json.decode(v.stdout, { luanil = { object = true, array = true } }))
         end)
     end, opts, nil)
-end)
+end, "projects_get")
 
 return M
