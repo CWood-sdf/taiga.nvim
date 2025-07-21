@@ -35,6 +35,7 @@ return function(document)
     root:attachRemap("n", "i", { "line-hover" }, function()
         local file = vim.fn.tempname()
         local buf = vim.api.nvim_create_buf(false, true)
+        require("taiga.blink").whitelist(buf)
         vim.api.nvim_buf_set_name(buf, file)
         vim.api.nvim_set_option_value("filetype", "markdown", { buf = buf })
         vim.bo[buf].buftype = ""

@@ -52,7 +52,7 @@ function source:get_completions(ctx, callback)
             kind = require('blink.cmp.types').CompletionItemKind.Text,
 
             -- (Optional) Text to fuzzy match against
-            -- filterText = 'bar',
+            filterText = "#" .. v.ref,
             -- (Optional) Text to use for sorting. You may use a layout like
             -- 'aaaa', 'aaab', 'aaac', ... to control the order of the items
             sortText = "#" .. v.ref .. "",
