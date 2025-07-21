@@ -15,7 +15,7 @@
     <h1 id="storyName"></h1>
     <br>
 
-    <h1 id="taskName"> Tasks </h1>
+    <h1 id="taskName"></h1>
     <br>
     <div id="status"> </div>
     <br>

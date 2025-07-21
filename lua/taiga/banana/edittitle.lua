@@ -1,12 +1,50 @@
 ---@module "banana.instance"
 
+local function startsWithDigit(str)
+    local split = vim.split(str, "%d", { plain = false })
+    if #split > 1 and #split[1] == 0 then
+        return true
+    end
+    return false
+end
+
+
 ---@param document Banana.Instance
 ---@param root Banana.Ast
 ---@param content string
 local function setContent(document, root, content)
     root:removeChildren()
     local el = document:createElement("span")
-    el:setTextContent(content)
+    local split = vim.split(content, "#", {
+        plain = true
+    })
+    local currentString = ""
+    currentString = split[1]
+    for i, v in ipairs(split) do
+        if startsWithDigit(v) then
+            if currentString ~= "" then
+                el:appendTextNode(currentString)
+                currentString = ""
+            end
+            local str = ""
+            local rest = v
+            repeat
+                str = str .. rest:sub(1, 1)
+                rest = rest:sub(2, #rest)
+            until not startsWithDigit(rest)
+            local e = document:createElement("Ref")
+            e:setAttribute("ref", str)
+            el:appendChild(e)
+
+            currentString = rest
+        elseif i ~= 1 then
+            currentString = "#" .. v
+        end
+    end
+    if currentString ~= "" then
+        el:appendTextNode(currentString)
+        currentString = ""
+    end
     root:appendChild(el)
 end
 

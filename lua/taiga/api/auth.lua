@@ -20,9 +20,9 @@ M.getUsername = cache.wrap(function(onDone, opts, query)
         text = true,
         cwd = "/home/christopher-wood/projects/taiga.nvim/",
     }, function(v)
-        onDone(vim.json.decode(v.stdout, { luanil = { object = true, array = true } }))
+        vim.schedule_wrap(onDone)(vim.json.decode(v.stdout, { luanil = { object = true, array = true } }))
     end)
-end, "auth_username", 0)
+end, "auth_username")
 
 
 ---@type Taiga.Auth.Credentials?
@@ -72,11 +72,11 @@ M.getCredentials = cache.wrap(function(onDone, opts)
             text = true,
         }, function(o)
             me = vim.json.decode(o.stdout, { luanil = { object = true, array = true } })
-            onDone(me)
+            vim.schedule_wrap(onDone)(me)
             -- M.refresh()
         end)
     end, opts, nil)
-end, "auth_credentials")
+end, "auth_credentials", 2 * 60 * 1000, false)
 
 function M.getAuthToken()
     if me == nil then return "" end

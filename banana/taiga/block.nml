@@ -2,31 +2,39 @@
 <template name="TextBlock" prefix="###md
 " postfix="
 ###">
-<div id="cont"></div>
+    <div id="cont"></div>
 
-<script src="taiga.banana.textblock" when="prerender">
-</script>
+    <script src="taiga.banana.textblock" when="prerender">
+    </script>
 </template>
 <template name="EditTitle">
-<span id="cont"></span>
+    <span id="cont"></span>
 
-<script src="taiga.banana.edittitle" when="prerender">
-</script>
+    <script src="taiga.banana.edittitle" when="prerender">
+    </script>
 </template>
 <template name="SelectPerson">
-<ol id="cont">
-Waiting...
-</ol>
+    <ol id="cont">
+    Waiting...
+    </ol>
 
-<script src="taiga.banana.selectperson" when="prerender">
-</script>
+    <script src="taiga.banana.selectperson" when="prerender">
+    </script>
 </template>
-<template name="Status">
-<div id="cont">
-Status: <span id="status-color">■</span> &sp; <span id="status-name"></span>
-</div>
 
-<script src="taiga.banana.status" when="prerender">
+<template name="Status">
+    <div id="cont">
+    Status: <span id="status-color">■</span> &sp; <span id="status-name"></span>
+    </div>
+
+    <script src="taiga.banana.status" when="prerender">
+    </script>
+</template>
+
+<template name="Ref">
+<span id="cont" style="hl-underline: true">(#%ref)</span>
+
+<script src="taiga.banana.Ref" when="prerender">
 </script>
 </template>
 </div>

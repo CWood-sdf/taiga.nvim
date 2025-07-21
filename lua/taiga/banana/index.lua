@@ -2,6 +2,7 @@
 
 local hasCb = false
 
+local requestCount = 0
 
 ---@param document Banana.Instance
 return function(document)
@@ -11,10 +12,19 @@ return function(document)
         document:loadNmlTo("taiga/main", body, true, false)
     end, {})
     if not hasCb then
-        local requestCount = 0
         require("taiga.utils.cache").attachRequestCallback(function()
             requestCount = requestCount + 1
             document:getElementById("requests"):setTextContent("Requests: " .. requestCount .. "")
         end)
     end
+    document:getElementById("requests"):setTextContent("Requests: " .. requestCount .. "")
+    document:body():attachRemap("n", "R", {}, function()
+        local ref = vim.v.count
+        if ref == 0 then
+            return
+        end
+        document:loadNmlTo(
+            "taiga/ref?ref=" .. ref, body, true, false
+        )
+    end)
 end

@@ -1,0 +1,6 @@
+<div refid="__" id="container">
+Loading ref &sp; %refid ...
+
+<script src="taiga.banana.ref" when="prerender">
+</script>
+</div>

@@ -37,6 +37,7 @@ return function(document)
                 progress:setAttribute("value", epic.user_stories_counts.progress .. "")
                 progress:setAttribute("max", epic.user_stories_counts.total .. "")
             end
+
             div:appendChild(progress)
             div:appendTextNode("]")
             epicCont:appendChild(div)

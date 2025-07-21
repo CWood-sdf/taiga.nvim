@@ -92,7 +92,9 @@ return function(document)
     end, {}, { id = storyId })
     require("taiga.api.tasks").get(function(task)
         versionTable.version = task.version
-        document:getElementById("taskName"):setTextContent("Task: (#" .. task.ref .. ") " .. task.subject)
+        -- document:getElementById("taskName"):setTextContent("Task: (#" .. task.ref .. ") " .. task.subject)
+        utils.taskTitle(document, body, document:getElementById("taskName"), task, versionTable, taskId, storyId, epicId,
+            projectId)
 
         if task.blocked_note ~= nil and task.blocked_note ~= "" then
             blockedCont:setTextContent("Blocked: " .. task.blocked_note)

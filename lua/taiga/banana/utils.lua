@@ -11,7 +11,7 @@ function M.epicTitle(document, container, colorBlock, body, epic, epicId, projec
     local title = document:createElement("EditTitle")
     title:setAttribute("content", epic.subject)
     title:setData("displayTitle", function(str)
-        return "Epic: (#" .. epic.ref .. ") " .. str
+        return "Epic: #" .. epic.ref .. " " .. str
     end)
     title:setData("filetype", "text")
     title:setData("callback", function(str)
@@ -49,7 +49,7 @@ function M.storyTitle(document, body, container, story, versionTable, storyId, e
     local title = document:createElement("EditTitle")
     title:setAttribute("content", story.subject)
     title:setData("displayTitle", function(str)
-        return "Story: (#" .. story.ref .. ") " .. str
+        return "Story: #" .. story.ref .. " " .. str
     end)
     title:setData("callback", function(str)
         require("taiga.api.stories").edit(function(v)
@@ -75,8 +75,30 @@ function M.storyTitle(document, body, container, story, versionTable, storyId, e
     end, {})
 end
 
-function M.taskTitle(el)
-
+function M.taskTitle(document, body, container, task, versionTable, taskId, storyId, epicId, projectId)
+    local title = document:createElement("EditTitle")
+    title:setAttribute("content", task.subject)
+    title:setData("displayTitle", function(str)
+        return "Task: #" .. task.ref .. " " .. str
+    end)
+    title:setData("callback", function(str)
+        require("taiga.api.tasks").edit(function(v)
+            if v.version == nil then
+                vim.print("Action Failed!")
+                vim.print(v)
+                return
+            end
+            versionTable.version = v.version
+        end, {}, {
+            projectId = projectId,
+            id = storyId,
+            data = {
+                subject = str,
+                version = versionTable.version,
+            },
+        })
+    end)
+    container:appendChild(title)
 end
 
 function M.projectHeader(el)

@@ -64,11 +64,11 @@ local mainList = cache.wrap(function(onDone, opts, query)
                     id = story.id,
                     name = story.subject,
                     ref = story.ref,
-                    tp = "epic",
+                    tp = "story",
                 })
-                M.get(function() end, { cache = false }, {
-                    id = story.id
-                })
+                -- M.get(function() end, { cache = false }, {
+                --     id = story.id
+                -- })
             end
             vim.schedule_wrap(onDone)(arr)
         end)
@@ -90,9 +90,9 @@ M.list = function(onDone, opts, query)
                     end
                 end
             end
-            onDone(newArr)
+            vim.schedule_wrap(onDone)(newArr)
         else
-            onDone(arr)
+            vim.schedule_wrap(onDone)(arr)
         end
     end, opts, query)
 end
@@ -144,6 +144,7 @@ M.delete = function(onDone, opts, query)
             text = true,
         }, function(v)
             mainList(function() end, { cache = false }, { project = query.project, epic = query.epicId })
+            require("taiga.api.refdb").deleteRef(query.id)
             vim.schedule_wrap(onDone)(v.stdout)
             -- onDone(vim.json.decode(v.stdout, { luanil = { object = true, array = true } }))
         end)
@@ -171,12 +172,10 @@ M.edit = function(onDone, opts, query)
         vim.system(cmd, {
             text = true,
         }, function(v)
-            M.get(function(e)
-                mainList(function() end, { cache = false }, { project = query.project, epic = e.epic })
-            end, {}, {
-                id = query.id
-            })
-            vim.schedule_wrap(onDone)(vim.json.decode(v.stdout, { luanil = { object = true, array = true } }))
+            M.get(function() end, {}, { id = query.id })
+            vim.schedule_wrap(onDone)(vim.json.decode(
+                v.stdout,
+                { luanil = { object = true, array = true } }))
         end)
     end, opts, nil)
 end

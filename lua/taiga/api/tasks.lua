@@ -72,9 +72,9 @@ M.list = cache.wrap(function(onDone, opts, query)
                     id = task.id,
                     name = task.subject,
                     ref = task.ref,
-                    tp = "epic",
+                    tp = "task",
                 })
-                M.get(function() end, { cache = false }, { id = task.id })
+                -- M.get(function() end, { cache = false }, { id = task.id })
             end
             vim.schedule_wrap(onDone)(arr)
         end)
@@ -100,9 +100,10 @@ M.delete = function(onDone, opts, query)
         vim.system(cmd, {
             text = true,
         }, function(v)
-            M.get(function() end, { cache = false }, { id = query.id })
+            -- M.get(function() end, { cache = false }, { id = query.id })
             M.list(function() end, { cache = false },
                 { project = query.project, user_story = query.storyId, projectId = query.project })
+            require("taiga.api.refdb").deleteRef(query.id)
             vim.schedule_wrap(onDone)(v.stdout)
             -- onDone(vim.json.decode(v.stdout, { luanil = { object = true, array = true } }))
         end)
@@ -158,7 +159,7 @@ M.get = cache.wrap(function(onDone, opts, query)
         vim.system(cmd, {
             text = true,
         }, function(v)
-            onDone(vim.json.decode(v.stdout, { luanil = { object = true, array = true } }))
+            vim.schedule_wrap(onDone)(vim.json.decode(v.stdout, { luanil = { object = true, array = true } }))
         end)
     end, opts, nil)
 end, "tasks_get")

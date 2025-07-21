@@ -48,9 +48,9 @@ M.list = cache.wrap(function(onDone, opts, query)
         }, function(v)
             local arr = vim.json.decode(v.stdout, { luanil = { object = true, array = true } })
             for _, epic in ipairs(arr) do
-                M.get(function() end, { cache = false }, {
-                    id = epic.id
-                })
+                -- M.get(function() end, { cache = false }, {
+                --     id = epic.id
+                -- })
                 require("taiga.api.refdb").addRef({
                     id = epic.id,
                     name = epic.subject,

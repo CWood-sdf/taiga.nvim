@@ -20,12 +20,12 @@ end
 
 ---@generic T, Query
 ---@param run fun(onDone: fun(value: T), opts: Taiga.Api.BaseOpts, query: Query)
----@param refreshTime number?
 ---@param name string
+---@param refreshTime number?
+---@param storeAsFile boolean?
 ---@return fun(onDone: fun(value: T), opts: Taiga.Api.BaseOpts, query: Query)
-function M.wrap(run, name, refreshTime)
-    refreshTime = refreshTime or 3 * 60 * 1000
-    local timer = nil
+function M.wrap(run, name, refreshTime, storeAsFile)
+    -- refreshTime = refreshTime or 3 * 60 * 1000
     local cache = {}
     local inflights = {}
     local ret = function(onDone, opts, query)
@@ -35,16 +35,8 @@ function M.wrap(run, name, refreshTime)
             onDone(cache[q])
             return
         end
-        if timer == nil and refreshTime ~= 0 then
-            timer = vim.uv.new_timer()
-            -- timer:start(refreshTime, 10000, function()
-            --     run(function(v)
-            --         cache[q] = v
-            --     end, opts, query)
-            -- end)
-        end
         local saveFile = saveDir .. hash .. ".json"
-        if vim.fn.filereadable(saveFile) and opts.cache ~= false then
+        if vim.fn.filereadable(saveFile) and opts.cache ~= false and storeAsFile ~= false then
             local file = io.open(saveFile, "r")
             if file ~= nil then
                 local contents = file:read("*a")
@@ -63,10 +55,12 @@ function M.wrap(run, name, refreshTime)
         inflights[q] = {}
         run(function(v)
             cache[q] = v
-            local file = io.open(saveFile, "w")
-            if file ~= nil then
-                file:write(vim.json.encode(v))
-                file:close()
+            if storeAsFile ~= false then
+                local file = io.open(saveFile, "w")
+                if file ~= nil then
+                    file:write(vim.json.encode(v))
+                    file:close()
+                end
             end
             onDone(v)
             for _, fn in ipairs(inflights[q]) do
@@ -74,6 +68,15 @@ function M.wrap(run, name, refreshTime)
             end
             for _, onreq in ipairs(onRequests) do
                 onreq()
+            end
+            if refreshTime ~= nil and refreshTime ~= 0 then
+                local timer = vim.uv.new_timer()
+                if timer ~= nil then
+                    timer:start(refreshTime, 0, function()
+                        cache[q] = nil
+                        timer:stop()
+                    end)
+                end
             end
             inflights[q] = nil
         end, opts, query)

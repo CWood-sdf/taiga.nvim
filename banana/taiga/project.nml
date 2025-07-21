@@ -2,7 +2,7 @@
     <style>
         #epics {
             display: grid;
-            grid-template-columns: 35% 15%;
+            grid-template-columns: 65% 35%;
         }
         progress {
             width: calc(100% - 2ch);
