@@ -14,7 +14,10 @@ return function(document)
     if not hasCb then
         require("taiga.utils.cache").attachRequestCallback(function()
             requestCount = requestCount + 1
-            document:getElementById("requests"):setTextContent("Requests: " .. requestCount .. "")
+            local el = document:getElementById("requests")
+            if not el:isNil() then
+                el:setTextContent("Requests: " .. requestCount .. "")
+            end
         end)
     end
     document:getElementById("requests"):setTextContent("Requests: " .. requestCount .. "")

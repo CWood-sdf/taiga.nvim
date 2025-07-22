@@ -22,6 +22,15 @@
     </script>
 </template>
 
+<template name="BaseStatus">
+    <span id="cont">
+    <span id="status-color">■</span> &sp; <span id="status-name"></span>
+    </span>
+
+    <script src="taiga.banana.status" when="prerender">
+    </script>
+</template>
+
 <template name="Status">
     <div id="cont">
     Status: <span id="status-color">■</span> &sp; <span id="status-name"></span>

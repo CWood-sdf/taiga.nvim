@@ -7,7 +7,13 @@ return function(document)
         error("'projectId' data must be provided to <Status>")
     local tp = root:getData("type") or error("'type' data must be provided to <Status>")
     local id = tonumber(root:getData("id")) or error("'id' data must be provided to <Status>")
-    local editCallback = root:getData("editCallback") or error("'editCallback' data must be provided to <Status>")
+    local editCallback = root:getData("editCallback") or false
+
+    if root.tag == "div" and editCallback == false then
+        error("'editCallback' data must be provided to <Status>")
+    end
+
+    local remap = root.tag == "div"
     local statusColor = document:getElementById("status-color")
     local statusName = document:getElementById("status-name")
 
@@ -38,39 +44,41 @@ return function(document)
             statusName:setTextContent(status.name)
             local open = false
             local els = {}
-            statusName:attachRemap('n', "<CR>", { "line-hover" }, function()
-                if not open then
-                    for _, v in ipairs(statusTypes) do
-                        local el = document:createElement('div')
-                        local color = document:createElement('span')
-                        color:setStyleValue("hl-fg", v.color)
-                        color:setTextContent("■")
-                        el:appendChild(color)
-                        el:setStyleValue("margin-left", "2ch")
-                        el:appendTextNode(" " .. v.name)
-                        el:addClass("open")
-                        el:attachRemap('n', '<CR>', { 'line-hover' }, function()
-                            for _, e in ipairs(els) do
-                                e:remove()
-                            end
-                            statusColor:setStyleValue("hl-fg", v.color)
-                            statusName:setTextContent(v.name)
-                            els = {}
-                            open = false
-                            vim.schedule_wrap(editCallback)(v)
-                        end, {})
-                        root:appendChild(el)
-                        table.insert(els, el)
+            if remap then
+                statusName:attachRemap('n', "<CR>", { "line-hover" }, function()
+                    if not open then
+                        for _, v in ipairs(statusTypes) do
+                            local el = document:createElement('div')
+                            local color = document:createElement('span')
+                            color:setStyleValue("hl-fg", v.color)
+                            color:setTextContent("■")
+                            el:appendChild(color)
+                            el:setStyleValue("margin-left", "2ch")
+                            el:appendTextNode(" " .. v.name)
+                            el:addClass("open")
+                            el:attachRemap('n', '<CR>', { 'line-hover' }, function()
+                                for _, e in ipairs(els) do
+                                    e:remove()
+                                end
+                                statusColor:setStyleValue("hl-fg", v.color)
+                                statusName:setTextContent(v.name)
+                                els = {}
+                                open = false
+                                vim.schedule_wrap(editCallback)(v)
+                            end, {})
+                            root:appendChild(el)
+                            table.insert(els, el)
+                        end
+                        open = true
+                    else
+                        for _, v in ipairs(els) do
+                            v:remove()
+                        end
+                        els = {}
+                        open = false
                     end
-                    open = true
-                else
-                    for _, v in ipairs(els) do
-                        v:remove()
-                    end
-                    els = {}
-                    open = false
-                end
-            end, {})
+                end, {})
+            end
         end, {}, { id = id })
     end, {}, { id = projectId })
     -- local filetype = root:getData("filetype") or "markdown"

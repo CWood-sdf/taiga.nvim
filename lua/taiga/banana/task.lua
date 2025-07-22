@@ -52,6 +52,7 @@ return function(document)
             projectId = projectId,
             id = taskId,
             data = {
+                reloadEpics = true,
                 version = versionTable.version,
                 status = v.id
             }
@@ -99,6 +100,66 @@ return function(document)
         if task.blocked_note ~= nil and task.blocked_note ~= "" then
             blockedCont:setTextContent("Blocked: " .. task.blocked_note)
         end
+        blockedCont:attachRemap("n", "B", {}, function()
+            local file = vim.fn.tempname()
+            local buf = vim.api.nvim_create_buf(false, true)
+            vim.api.nvim_buf_set_name(buf, file)
+            vim.api.nvim_set_option_value("filetype", "text", { buf = buf })
+            require("taiga.blink").whitelist(buf)
+            vim.bo[buf].buftype = ""
+            vim.api.nvim_buf_set_lines(buf, 0, -1, false, { "Blocked reason:", task.blocked_note or "" })
+            local win = vim.api.nvim_open_win(buf, true, {
+                relative = "win",
+                width = math.floor(vim.o.columns * 0.3),
+                height = 2,
+                border = "rounded",
+                row = 2,
+                col = 2,
+            })
+            vim.wo[win].winhighlight = "Normal:Normal"
+
+            vim.api.nvim_win_set_cursor(win, { 2, 0 })
+            vim.cmd.w()
+
+            vim.api.nvim_create_autocmd("BufWrite", {
+                callback = function()
+                    local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+                    if #lines > 2 then
+                        error("Too many lines :(")
+                    end
+                end,
+                buffer = buf,
+            })
+            vim.api.nvim_create_autocmd("BufLeave", {
+                callback = function()
+                    local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+                    local str = lines[#lines]
+
+                    local isBlocked = str ~= ""
+                    task.blocked_note = str
+                    require("taiga.api.tasks").edit(function(t)
+                        versionTable.version = t.version
+                        require("taiga.api.tasks").list(
+                            function() end, { cache = false },
+                            { project = projectId, epic = epicId, user_story = storyId })
+                    end, {}, {
+                        id = task.id,
+                        projectId = projectId,
+                        data = {
+                            is_blocked = isBlocked,
+                            blocked_note = str,
+                            version = versionTable.version
+                        }
+                    })
+                    if not isBlocked then
+                        blockedCont:setTextContent("")
+                    else
+                        blockedCont:setTextContent("Blocked: " .. str)
+                    end
+                end,
+                buffer = buf,
+            })
+        end, {})
         -- assigned {
         local assignee = document:getElementById("assignee")
         local assignedUser = task.assigned_to

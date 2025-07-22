@@ -1,6 +1,21 @@
 local cache = require "taiga.utils.cache"
 local M = {}
 
+---@class (exact) Taiga.Epics.Create.Query.Data
+---@field project number
+---@field subject string
+---@field color string
+
+---@class (exact) Taiga.Epics.Delete.Query
+---@field id number
+---@field project number
+---@field refresh fun(arr: table[])?
+
+---@class (exact) Taiga.Epics.Create.Query
+---@field data Taiga.Epics.Create.Query.Data
+---@field refresh fun(arr: table[])?
+---@field projectId number
+
 ---@class (exact) Taiga.Epics.List.Query
 ---@field project number
 ---@field assigned_to number?
@@ -62,6 +77,62 @@ M.list = cache.wrap(function(onDone, opts, query)
         end)
     end, opts, nil)
 end, "epics_list")
+
+---@param onDone fun(projects)
+---@param opts Taiga.Api.BaseOpts
+---@param query Taiga.Epics.Create.Query
+M.create = function(onDone, opts, query)
+    require("taiga.api.auth").getCredentials(function(login)
+        local cmd = {
+            "curl",
+            "-X",
+            "POST",
+            "-H",
+            "Content-Type: application/json",
+            "-H",
+            "Authorization: Bearer " .. login.auth_token,
+            "-d", vim.json.encode(query.data),
+            "-s",
+            "https://api.taiga.io/api/v1/epics/",
+        }
+
+        vim.system(cmd, {
+            text = true,
+        }, function(v)
+            M.list(function(epics)
+                query.refresh(epics)
+            end, { cache = false }, { project = query.projectId })
+            -- TODO: This doesnt work
+            vim.schedule_wrap(onDone)(vim.json.decode(v.stdout, { luanil = { object = true, array = true } }))
+        end)
+    end, opts, nil)
+end
+
+---@param onDone fun(projects)
+---@param opts Taiga.Api.BaseOpts
+---@param query Taiga.Epics.Delete.Query
+M.delete = function(onDone, opts, query)
+    require("taiga.api.auth").getCredentials(function(login)
+        local cmd = {
+            "curl",
+            "-X",
+            "DELETE",
+            "-H",
+            "Content-Type: application/json",
+            "-H",
+            "Authorization: Bearer " .. login.auth_token,
+            "-s",
+            "https://api.taiga.io/api/v1/epics/" .. query.id
+        }
+
+        vim.system(cmd, {
+            text = true,
+        }, function(v)
+            M.list(query.refresh, { cache = false }, { project = query.project })
+            vim.schedule_wrap(onDone)(vim.json.decode(v.stdout, { luanil = { object = true, array = true } }))
+        end)
+    end, opts, nil)
+end
 
 ---@param onDone fun(projects)
 ---@param opts Taiga.Api.BaseOpts

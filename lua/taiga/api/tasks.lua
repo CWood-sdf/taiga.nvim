@@ -31,6 +31,7 @@ local M = {}
 ---@class (exact) Taiga.Tasks.Edit.Query
 ---@field id number
 ---@field projectId number
+---@field reloadEpics boolean?
 ---@field data Taiga.Stories.Edit.Query.Data
 
 ---@class (exact) Taiga.Tasks.Get.Query
@@ -134,6 +135,13 @@ M.edit = function(onDone, opts, query)
             text = true,
         }, function(v)
             M.get(function() end, { cache = false }, { id = query.id })
+            if query.reloadEpics == true then
+                require("taiga.api.epics").list(
+                    function() end,
+                    { cache = false },
+                    { project = query.projectId }
+                )
+            end
             vim.schedule_wrap(onDone)(vim.json.decode(v.stdout, { luanil = { object = true, array = true } }))
         end)
     end, opts, nil)

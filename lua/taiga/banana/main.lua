@@ -13,7 +13,6 @@ return function(document)
                 el:setAttribute("projectName", proj.name)
                 el:setAttribute("index", i .. "")
                 el:attachRemap("n", "<CR>", { "line-hover" }, function()
-                    print('urmom')
                     document:loadNmlTo(
                         "taiga/project?id=" .. proj.id, body, true, false
                     )

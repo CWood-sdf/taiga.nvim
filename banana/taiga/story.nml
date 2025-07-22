@@ -1,11 +1,19 @@
 <div id="container" projectName="project" projectDescription="description" epicName="epic">
     <template name="TaskName">
-        <div>(#%ref) <span id="blocker" style="hl-fg: #f7768e"></span> &sp; %taskName</div>
+        <template import="taiga/block"></template>
+        <div>(#%ref) <span id="statuscont" style="hl-bg: hl-extract(bg, Visual); "></span><span id="blocker" style="hl-fg: #f7768e"></span> &sp; %taskName</div>
         <script when="prerender">
-            local block = document:getPrimaryNode():getAttributeSubstitution("blockReason")
+            local primary = document:getPrimaryNode()
+            local block = primary:getAttributeSubstitution("blockReason")
             if block ~= "" then
                 document:getElementById("blocker"):setTextContent(" (blocked)")
             end
+            local statusCont = document:getElementById("statuscont")
+            local status = document:createElement("BaseStatus")
+            status:setData('projectId', primary:getData("projectId"))
+            status:setData('type', "task")
+            status:setData("id", primary:getData("id"))
+            statusCont:appendChild(status)
             
         </script>
     </template>

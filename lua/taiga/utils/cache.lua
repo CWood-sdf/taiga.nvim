@@ -31,9 +31,17 @@ function M.wrap(run, name, refreshTime, storeAsFile)
     local ret = function(onDone, opts, query)
         local q = vim.json.encode(query)
         local hash = name .. "__" .. stringToHex(q)
+        local clock = vim.uv.clock_gettime("realtime")
+        if clock == nil then
+            error("BRO")
+        end
         if cache[q] ~= nil and opts.cache ~= false then
-            onDone(cache[q])
-            return
+            if clock.sec - cache[q].__ran_at.sec < 2 * 60 * 60 then
+                onDone(cache[q])
+                return
+            else
+                cache[q] = nil
+            end
         end
         local saveFile = saveDir .. hash .. ".json"
         if vim.fn.filereadable(saveFile) and opts.cache ~= false and storeAsFile ~= false then
@@ -41,9 +49,18 @@ function M.wrap(run, name, refreshTime, storeAsFile)
             if file ~= nil then
                 local contents = file:read("*a")
                 file:close()
-                cache[q] = vim.json.decode(contents)
-                onDone(cache[q])
-                return
+                local obj = vim.json.decode(contents)
+                for k, v in pairs(obj) do
+                    local isnum = #vim.split(k .. "", "%d", { plain = false, trimempty = true }) == 0
+                    if isnum then
+                        obj[tonumber(k)] = v
+                    end
+                end
+                if obj.__ran_at ~= nil and obj.__ran_at.sec ~= nil and clock.sec - obj.__ran_at.sec < 30 * 60 then
+                    cache[q] = obj
+                    onDone(cache[q])
+                    return
+                end
             end
         end
         if inflights[q] ~= nil then
@@ -55,6 +72,10 @@ function M.wrap(run, name, refreshTime, storeAsFile)
         inflights[q] = {}
         run(function(v)
             cache[q] = v
+            v.__ran_at = vim.uv.clock_gettime("realtime")
+            if v.__ran_at == nil then
+                error("bro clock gave me nothing")
+            end
             if storeAsFile ~= false then
                 local file = io.open(saveFile, "w")
                 if file ~= nil then

@@ -51,7 +51,7 @@ return function(document)
         vim.wo[win].winhighlight = "Normal:Normal"
         vim.cmd.w()
 
-        vim.api.nvim_create_autocmd("BufWrite", {
+        vim.api.nvim_create_autocmd("BufLeave", {
             callback = function()
                 local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
                 local str = vim.iter(lines):join("\n")

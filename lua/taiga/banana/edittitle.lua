@@ -79,7 +79,7 @@ return function(document)
         vim.api.nvim_win_set_cursor(win, { 2, 0 })
         vim.cmd.w()
 
-        vim.api.nvim_create_autocmd("BufWrite", {
+        vim.api.nvim_create_autocmd("BufLeave", {
             callback = function()
                 local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
                 local str = lines[#lines]
