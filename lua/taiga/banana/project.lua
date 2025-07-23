@@ -45,7 +45,7 @@ return function(document)
     local container = document:getElementById("container")
     local epicCont = document:getElementById("epics")
 
-    container:attachRemap("n", "+", {}, function()
+    epicCont:attachRemap("n", "+", {}, function()
         local file = vim.fn.tempname()
         local buf = vim.api.nvim_create_buf(false, true)
         vim.api.nvim_buf_set_name(buf, file)

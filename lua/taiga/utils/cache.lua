@@ -25,9 +25,10 @@ end
 ---@param storeAsFile boolean?
 ---@return fun(onDone: fun(value: T), opts: Taiga.Api.BaseOpts, query: Query)
 function M.wrap(run, name, refreshTime, storeAsFile)
-    -- refreshTime = refreshTime or 3 * 60 * 1000
+    refreshTime = 0
     local cache = {}
     local inflights = {}
+    local decacheTime = 2 * 600000 * 60
     local ret = function(onDone, opts, query)
         local q = vim.json.encode(query)
         local hash = name .. "__" .. stringToHex(q)
@@ -36,7 +37,7 @@ function M.wrap(run, name, refreshTime, storeAsFile)
             error("BRO")
         end
         if cache[q] ~= nil and opts.cache ~= false then
-            if clock.sec - cache[q].__ran_at.sec < 2 * 60 * 60 then
+            if clock.sec - cache[q].__ran_at.sec < decacheTime then
                 onDone(cache[q])
                 return
             else
@@ -56,7 +57,7 @@ function M.wrap(run, name, refreshTime, storeAsFile)
                         obj[tonumber(k)] = v
                     end
                 end
-                if obj.__ran_at ~= nil and obj.__ran_at.sec ~= nil and clock.sec - obj.__ran_at.sec < 30 * 60 then
+                if obj.__ran_at ~= nil and obj.__ran_at.sec ~= nil and clock.sec - obj.__ran_at.sec < decacheTime then
                     cache[q] = obj
                     onDone(cache[q])
                     return
